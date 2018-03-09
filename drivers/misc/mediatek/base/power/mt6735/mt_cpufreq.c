@@ -1035,7 +1035,7 @@ static unsigned int _mt_cpufreq_get_cpu_level(void)
 		cpufreq_info("@%s: segment_code = 0x%x\n", __func__, segment_code);
 
 #if defined(CONFIG_ARCH_MT6735) && defined(CONFIG_MTK_EFUSE_DOWNGRADE)
-			return CPU_LEVEL_4;	/* SW config 37T to 35M+ */
+		return CPU_LEVEL_4;	/* SW config 37T to 35M+ */
 #endif
 
 		switch (segment_code) {
@@ -1053,9 +1053,9 @@ static unsigned int _mt_cpufreq_get_cpu_level(void)
 		case 0x52:
 		case 0x53:
 #ifdef CONFIG_MTK_EFUSE_DOWNGRADE
-				return CPU_LEVEL_3;	/* SW config to 35M+ */
+			return CPU_LEVEL_3;	/* SW config to 35M+ */
 #else
-				return CPU_LEVEL_2;	/* 35P+ 1.25G */
+			return CPU_LEVEL_2;	/* 35P+ 1.25G */
 #endif
 		default:
 			break;
@@ -1066,9 +1066,9 @@ static unsigned int _mt_cpufreq_get_cpu_level(void)
 	/* No efuse,  use clock-frequency from device tree to determine CPU table type! */
 	if (cpu_spd_bond == 0) {
 #ifdef CONFIG_ARCH_MT6753
-		if (cpu_speed >= 1300 && cpu_dvfs_is_extbuck_valid())
+		if (cpu_speed >= 1500 && cpu_dvfs_is_extbuck_valid())
 			lv = CPU_LEVEL_0;	/* 1.5G */
-		else if (cpu_speed >= 1100)
+		else if (cpu_speed >= 1300)
 			lv = CPU_LEVEL_1;	/* 1.3G */
 		else {
 			cpufreq_err("No suitable DVFS table, set to default CPU level! clock-frequency=%d\n",
@@ -1086,11 +1086,11 @@ static unsigned int _mt_cpufreq_get_cpu_level(void)
 			lv = CPU_LEVEL_1;
 		}
 #else	/* CONFIG_ARCH_MT6735 */
-		if (cpu_speed >= 1300)
+		if (cpu_speed >= 1500)
 			lv = CPU_LEVEL_0;	/* 1.5G */
-		else if (cpu_speed >= 1100)
+		else if (cpu_speed >= 1300)
 			lv = CPU_LEVEL_1;	/* 1.3G */
-		else if (cpu_speed >= 1000)
+		else if (cpu_speed >= 1100)
 			lv = CPU_LEVEL_2;	/* 1.1G */
 		else {
 			cpufreq_err("No suitable DVFS table, set to default CPU level! clock-frequency=%d\n",
@@ -3247,7 +3247,7 @@ static void _mt_cpufreq_power_calculation(struct mt_cpu_dvfs *p, int oppidx, int
 	if (p->cpu_level == CPU_LEVEL_3)
 		p_leakage = leakage_data[oppidx];
 	else
-	p_leakage = mt_spower_get_leakage(MT_SPOWER_CPU, p->opp_tbl[oppidx].cpufreq_volt / 100, 65);
+		p_leakage = mt_spower_get_leakage(MT_SPOWER_CPU, p->opp_tbl[oppidx].cpufreq_volt / 100, 65);
 #else
 	p_leakage = mt_spower_get_leakage(MT_SPOWER_CPU, p->opp_tbl[oppidx].cpufreq_volt / 100, 65);
 #endif

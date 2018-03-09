@@ -177,6 +177,7 @@ static int vsync_cnt;
 /* local function declarations */
 /* --------------------------------------------------------------------------- */
 
+static int init_framebuffer(struct fb_info *info);
 static int mtkfb_get_overlay_layer_info(struct fb_overlay_layer_info *layerInfo);
 
 
@@ -1062,7 +1063,60 @@ static int mtkfb_ioctl(struct fb_info *info, unsigned int cmd, unsigned long arg
 		/* sem_early_suspend_cnt++; */
 		up(&sem_early_suspend);
 		return r;
-	}	
+	}
+
+	case MTKFB_CAPTURE_FRAMEBUFFER:
+	{
+		unsigned long pbuf = 0;
+
+		if (copy_from_user(&pbuf, (void __user *)arg, sizeof(pbuf))) {
+			MTKFB_LOG("[FB]: copy_from_user failed! line:%d\n", __LINE__);
+			r = -EFAULT;
+		} else {
+			dprec_logger_start(DPREC_LOGGER_WDMA_DUMP, 0, 0);
+			primary_display_capture_framebuffer_ovl(pbuf, eBGRA8888);
+			dprec_logger_done(DPREC_LOGGER_WDMA_DUMP, 0, 0);
+		}
+
+		return r;
+	}
+
+	case MTKFB_SLT_AUTO_CAPTURE:
+	{
+		struct fb_slt_catpure capConfig;
+
+		if (copy_from_user(&capConfig, (void __user *)arg, sizeof(capConfig))) {
+			MTKFB_LOG("[FB]: copy_from_user failed! line:%d\n", __LINE__);
+			r = -EFAULT;
+		} else {
+			unsigned int format;
+
+			switch (capConfig.format) {
+			case MTK_FB_FORMAT_RGB888:
+				format = eRGB888;
+				break;
+			case MTK_FB_FORMAT_BGR888:
+				format = eBGR888;
+				break;
+			case MTK_FB_FORMAT_ARGB8888:
+				format = eARGB8888;
+				break;
+			case MTK_FB_FORMAT_RGB565:
+				format = eRGB565;
+				break;
+			case MTK_FB_FORMAT_UYVY:
+				format = eYUV_420_2P_UYVY;
+				break;
+			case MTK_FB_FORMAT_ABGR8888:
+			default:
+				format = eABGR8888;
+				break;
+			}
+			primary_display_capture_framebuffer_ovl((unsigned long)capConfig.outputBuffer, format);
+		}
+
+		return r;
+	}
 
 	case MTKFB_GET_OVERLAY_LAYER_INFO:
 	{
@@ -1095,16 +1149,9 @@ static int mtkfb_ioctl(struct fb_info *info, unsigned int cmd, unsigned long arg
 			disp_input_config *input;
 
 			memset((void *)&session_input, 0, sizeof(session_input));
-			if (layerInfo.layer_id >= TOTAL_OVL_LAYER_NUM) {
-				MTKFB_LOG
-					("MTKFB_SET_OVERLAY_LAYER, layer_id invalid=%d\n",
-					 layerInfo.layer_id);
-			} else {
 			input = &session_input.config[session_input.config_layer_num++];
+
 			_convert_fb_layer_to_disp_input(&layerInfo, input);
-			}
-
-
 			primary_display_config_input_multiple(&session_input);
 			primary_display_trigger(1, NULL, 0);
 		}
@@ -1188,6 +1235,20 @@ static int mtkfb_ioctl(struct fb_info *info, unsigned int cmd, unsigned long arg
 		primary_display_trigger(1, NULL, 0);
 		return 0;
 	}
+
+	case MTKFB_META_RESTORE_SCREEN:
+	{
+		struct fb_var_screeninfo var;
+
+		if (copy_from_user(&var, argp, sizeof(var)))
+			return -EFAULT;
+
+		info->var.yoffset = var.yoffset;
+		init_framebuffer(info);
+
+		return mtkfb_pan_display_impl(&var, info);
+	}
+
 
 	case MTKFB_GET_DEFAULT_UPDATESPEED:
 	{
@@ -1295,6 +1356,7 @@ struct compat_fb_overlay_layer {
 #define COMPAT_MTKFB_CONFIG_IMMEDIATE_UPDATE	MTK_IOW(4, compat_ulong_t)
 
 #define COMPAT_MTKFB_GET_POWERSTATE		MTK_IOR(21, compat_ulong_t)
+#define COMPAT_MTKFB_META_RESTORE_SCREEN	MTK_IOW(101, compat_ulong_t)
 
 static void compat_convert(struct compat_fb_overlay_layer *compat_info,
 			   struct fb_overlay_layer *info)
@@ -1362,32 +1424,25 @@ static int mtkfb_compat_ioctl(struct fb_info *info, unsigned int cmd, unsigned l
 	{
 		compat_ulong_t __user *data32;
 		unsigned long *pbuf;
-		unsigned int pixel_bpp = info->var.bits_per_pixel / 8;
-		unsigned int fbsize = DISP_GetScreenHeight() * DISP_GetScreenWidth() * pixel_bpp;
-		unsigned long dest;
+		compat_ulong_t l;
 
 		data32 = compat_ptr(arg);
-		pbuf = compat_alloc_user_space(fbsize);
-
-		if (!pbuf) {
-			pr_warn("[FB]: vmalloc capture src_pbuf failed! line:%d\n", __LINE__);
-			ret  = -EFAULT;
-		} else {
-			dprec_logger_start(DPREC_LOGGER_WDMA_DUMP, 0, 0);
-			primary_display_capture_framebuffer_ovl((unsigned long)pbuf, eBGRA8888);
-			dprec_logger_done(DPREC_LOGGER_WDMA_DUMP, 0, 0);
-			ret = get_user(dest, data32);
-			if (copy_in_user((unsigned long *)dest, pbuf, fbsize/2)) {
-				pr_warn("[FB]: copy_to_user failed! line:%d\n", __LINE__);
-				ret  = -EFAULT;
-			}
-		}
+		pbuf = compat_alloc_user_space(sizeof(unsigned long));
+		ret = get_user(l, data32);
+		ret |= put_user(l, pbuf);
+		primary_display_capture_framebuffer_ovl(*pbuf, eBGRA8888);
 		break;
 	}
 	case COMPAT_MTKFB_TRIG_OVERLAY_OUT:
 	{
 		arg = (unsigned long)compat_ptr(arg);
 		ret = mtkfb_ioctl(info, MTKFB_TRIG_OVERLAY_OUT, arg);
+		break;
+	}
+	case COMPAT_MTKFB_META_RESTORE_SCREEN:
+	{
+		arg = (unsigned long)compat_ptr(arg);
+		ret = mtkfb_ioctl(info, MTKFB_META_RESTORE_SCREEN, arg);
 		break;
 	}
 	case COMPAT_MTKFB_SET_OVERLAY_LAYER:
@@ -1412,14 +1467,9 @@ static int mtkfb_compat_ioctl(struct fb_info *info, unsigned int cmd, unsigned l
 				return MTKFB_ERROR_IS_EARLY_SUSPEND;
 			}
 			memset((void *)&session_input, 0, sizeof(session_input));
-			if (layerInfo.layer_id >= TOTAL_OVL_LAYER_NUM) {
-				DDPAEE
-					("COMPAT_MTKFB_SET_OVERLAY_LAYER, layer_id invalid=%d\n",
-					 layerInfo.layer_id);
-			} else {
 			input = &session_input.config[session_input.config_layer_num++];
+
 			_convert_fb_layer_to_disp_input(&layerInfo, input);
-			}
 			primary_display_config_input_multiple(&session_input);
 			/* primary_display_trigger(1, NULL, 0); */
 		}
@@ -1445,12 +1495,6 @@ static int mtkfb_compat_ioctl(struct fb_info *info, unsigned int cmd, unsigned l
 
 			for (i = 0; i < VIDEO_LAYER_COUNT; ++i) {
 				compat_convert(&compat_layerInfo[i], &layerInfo);
-				if (layerInfo.layer_id >= OVL_LAYER_NUM) {
-					DDPAEE
-					    ("COMPAT_MTKFB_SET_VIDEO_LAYERS, layer_id invalid=%d\n",
-					     layerInfo.layer_id);
-					continue;
-				}
 				input =
 				    &session_input.config[session_input.config_layer_num++];
 				_convert_fb_layer_to_disp_input(&layerInfo, input);
@@ -1646,6 +1690,23 @@ static void mtkfb_fbinfo_cleanup(struct mtkfb_device *fbdev)
 	(((x) &  0x7E0) << 5) |		\
 	(((x) & 0xF800) << 8) |		\
 	(0xFF << 24)) /* opaque */
+
+/* Init frame buffer content as 3 R/G/B color bars for debug */
+static int init_framebuffer(struct fb_info *info)
+{
+	void *buffer = info->screen_base + info->var.yoffset * info->fix.line_length;
+
+	/* clean whole frame buffer as black */
+	int size = info->var.xres_virtual * info->var.yres * info->var.bits_per_pixel/8;
+
+	/*memset_io(buffer, 0, info->screen_size)*/;
+
+	if (info->var.yres + info->var.yoffset <= info->var.yres_virtual)
+		memset_io(buffer, 0, size);
+
+	return 0;
+}
+
 
 /**
  * Free driver resources. Can be called to rollback an aborted initialization
@@ -2534,7 +2595,86 @@ int mtkfb_get_debug_state(char *stringbuf, int buf_len)
 	return len;
 }
 
+#ifdef CONFIG_LCM_GPIO_UTIL
+struct pinctrl *lcm_pinctl_pinctrl;
+struct pinctrl_state *lcm_pinctl_vsp_high, *lcm_pinctl_vsp_low, *lcm_pinctl_vsn_high, *lcm_pinctl_vsn_low;
+static int lcm_pinctl_gpio_probe(struct platform_device *pdev);
+void lcm_pinctl_gpio_output(int pin, int level) ;
 
+static int lcm_pinctl_gpio_probe(struct platform_device *pdev)
+{
+	int ret;
+	printk ("[lcm_pinctl %d] mt_lcm_pinctl_pinctrl+++++++++++++++++\n", pdev->id);
+	lcm_pinctl_pinctrl = devm_pinctrl_get(&pdev->dev);
+	if (IS_ERR(lcm_pinctl_pinctrl)) {
+		ret = PTR_ERR(lcm_pinctl_pinctrl);
+		dev_err(&pdev->dev, "fwq Cannot find lcm_pinctl lcm_pinctl_pinctrl!\n");
+		return ret;
+	}
+	lcm_pinctl_vsp_high = pinctrl_lookup_state(lcm_pinctl_pinctrl, "vsp-pullhigh");
+	if (IS_ERR(lcm_pinctl_vsp_high)) {
+		ret = PTR_ERR(lcm_pinctl_vsp_high);
+		dev_err(&pdev->dev, "fwq Cannot find lcm_pinctl pinctrl vsp-pullhigh!\n");
+		return ret;
+	}
+	lcm_pinctl_vsp_low = pinctrl_lookup_state(lcm_pinctl_pinctrl, "vsp-pulllow");
+	if (IS_ERR(lcm_pinctl_vsp_low)) {
+		ret = PTR_ERR(lcm_pinctl_vsp_low);
+		dev_err(&pdev->dev, "fwq Cannot find lcm_pinctl pinctrl vsp-pulllow!\n");
+		return ret;
+	}
+	lcm_pinctl_vsn_high = pinctrl_lookup_state(lcm_pinctl_pinctrl, "vsn-pullhigh");
+	if (IS_ERR(lcm_pinctl_vsn_high)) {
+		ret = PTR_ERR(lcm_pinctl_vsn_high);
+		dev_err(&pdev->dev, "fwq Cannot find lcm_pinctl pinctrl vsn-pullhigh!\n");
+		return ret;
+	}
+	lcm_pinctl_vsn_low = pinctrl_lookup_state(lcm_pinctl_pinctrl, "vsn-pulllow");
+	if (IS_ERR(lcm_pinctl_vsn_low)) {
+		ret = PTR_ERR(lcm_pinctl_vsn_low);
+		dev_err(&pdev->dev, "fwq Cannot find lcm_pinctl pinctrl vsn-pulllow!\n");
+		return ret;
+	}
+	printk ("[lcm_pinctl %d] mt_lcm_pinctl_pinctrl----------\n", pdev->id);
+	return 0;
+}
+void lcm_pinctl_gpio_output(int pin, int level) //pin 0->vsp 1>vsn   0->pull_down   1->pull_up  
+{
+	printk ("[lcm_pinctl] lcm_pinctl_output pin = %d, level = %d\n", pin, level);
+	if (pin == 0) {
+		if (level)
+			pinctrl_select_state(lcm_pinctl_pinctrl, lcm_pinctl_vsp_high);
+		else
+			pinctrl_select_state(lcm_pinctl_pinctrl, lcm_pinctl_vsp_low);
+	} else {
+		if (level)
+			pinctrl_select_state(lcm_pinctl_pinctrl, lcm_pinctl_vsn_high);
+		else
+			pinctrl_select_state(lcm_pinctl_pinctrl, lcm_pinctl_vsn_low);
+	}
+}
+
+
+
+struct of_device_id lcm_pinctl_gpio_of_match[] = {
+	{ .compatible = "mediatek,lcm_pinctl", },
+};
+
+struct platform_device lcm_pinctl_gpio_device = {
+	.name		= "lcm_pinctl_gpio",
+	.id			= -1,
+};
+static struct platform_driver lcm_pinctl_gpio_driver = {
+	.probe = lcm_pinctl_gpio_probe,
+	.driver = {
+			.name = "lcm_pinctl_gpio",
+			.owner = THIS_MODULE,
+			.of_match_table = lcm_pinctl_gpio_of_match,
+	},
+};
+
+
+#endif 
 /* Register both the driver and the device */
 int __init mtkfb_init(void)
 {
@@ -2547,6 +2687,14 @@ int __init mtkfb_init(void)
 		r = -ENODEV;
 		goto exit;
 	}
+#ifdef CONFIG_LCM_GPIO_UTIL
+    //add by caozhg
+    if (platform_driver_register(&lcm_pinctl_gpio_driver) != 0) {
+		printk ( "unable to register lcm_pinctl gpio driver.\n");
+		return -1;
+    }
+#endif
+
 #if 0
 #ifdef CONFIG_HAS_EARLYSUSPEND
 	register_early_suspend(&mtkfb_early_suspend_handler);

@@ -116,7 +116,6 @@ int hps_get_cpu_num_base(enum hps_base_type_e type,
 	default:
 		break;
 	}
-
 	return 0;
 }
 

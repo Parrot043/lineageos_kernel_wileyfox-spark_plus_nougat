@@ -81,7 +81,7 @@ static int disp_dither_config(DISP_MODULE_ENUM module, disp_ddp_path_config *pCo
 
 static int disp_dither_bypass(DISP_MODULE_ENUM module, int bypass)
 {
-	int relay = 1;
+	int relay = 0;
 
 	if (bypass)
 		relay = 1;
