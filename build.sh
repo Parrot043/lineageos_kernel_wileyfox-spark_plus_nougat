@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Architecture
 export ARCH=arm64
 export TARGET_ARCH=arm64
