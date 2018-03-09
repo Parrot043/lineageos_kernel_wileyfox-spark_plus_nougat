@@ -1,7 +1,7 @@
 ## Wileyfox Spark+ Kernel Tree for (7.x , 3.18.98[EOL])           
 ![Wileyfox Spark+](https://www.kickmobiles.com/content/images/thumbs/0007769_wileyfox-spark-plus-dual-sim-16gb-black_420.jpeg)
 
-Unofficial codename - spark+
+Unofficial codename - porridge
 
 Basic   | Spec Sheet
 -------:|:-------------------------
