@@ -3470,8 +3470,10 @@ static int mc3xxx_i2c_probe(struct i2c_client *client, const struct i2c_device_i
 
 	GSE_LOG("mc3xxx_i2c_probe\n");
 
-	if (MC3XXX_RETCODE_SUCCESS != _mc3xxx_i2c_auto_probe(client))
+	if (MC3XXX_RETCODE_SUCCESS != _mc3xxx_i2c_auto_probe(client)) {
+		err = -ENODEV;
 		goto exit;
+	}
 
 	obj = kzalloc(sizeof(*obj), GFP_KERNEL);
 	if (!obj) {
@@ -3505,8 +3507,10 @@ static int mc3xxx_i2c_probe(struct i2c_client *client, const struct i2c_device_i
 	mc3xxx_i2c_client = new_client;
 	MC3XXX_reset(new_client);
 
-	if (MC3XXX_RETCODE_SUCCESS != _mc3xxx_i2c_auto_probe(client))
+	if (MC3XXX_RETCODE_SUCCESS != _mc3xxx_i2c_auto_probe(client)) {
+		err = -ENODEV;
 		goto exit_init_failed;
+	}
 
 	MC3XXX_i2c_read_block(client, 0x21, offset_buf, 6);
 	err = MC3XXX_Init(new_client, 1);

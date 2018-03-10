@@ -107,14 +107,14 @@ static stAF_DrvList g_stAF_DrvList[MAX_NUM_OF_LENS] = {
 	#ifdef CONFIG_MTK_LENS_DW9761AF_SUPPORT
 	{1, AFDRV_DW9761AF, DW9761AF_SetI2Cclient, DW9761AF_Ioctl, DW9761AF_Release},
 	#endif
+	#ifdef CONFIG_MTK_LENS_DW9763AF_SUPPORT
+	{1, AFDRV_DW9763AF, DW9763AF_SetI2Cclient, DW9763AF_Ioctl, DW9763AF_Release},
+	#endif
 	#ifdef CONFIG_MTK_LENS_DW9814AF_SUPPORT
 	{1, AFDRV_DW9814AF, DW9814AF_SetI2Cclient, DW9814AF_Ioctl, DW9814AF_Release},
 	#endif
 	#ifdef CONFIG_MTK_LENS_DW9718AF_SUPPORT
 	{1, AFDRV_DW9718AF, DW9718AF_SetI2Cclient, DW9718AF_Ioctl, DW9718AF_Release},
-	#endif
-	#ifdef CONFIG_MTK_LENS_DW9718AF_OFILM_SUPPORT
-	{1, AFDRV_DW9718AF_OFILM, DW9718AF2_SetI2Cclient, DW9718AF2_Ioctl, DW9718AF2_Release},
 	#endif
 	#ifdef CONFIG_MTK_LENS_LC898122AF_SUPPORT
 	{1, AFDRV_LC898122AF, LC898122AF_SetI2Cclient, LC898122AF_Ioctl, LC898122AF_Release},
@@ -178,15 +178,12 @@ static long AF_Ioctl(struct file *a_pstFile, unsigned int a_u4Command, unsigned 
 {
 	long i4RetValue = 0;
 
-	printk("af_ioctl enter");
 	switch (a_u4Command) {
 	case AFIOC_S_SETDRVNAME:
-	printk("af_ioctl SETDRVNAME");
 		i4RetValue = AF_SetMotorName((__user stAF_MotorName *)(a_u4Param));
 		break;
 
 	default:
-	printk("af_ioctl move step");
 		if (g_pstAF_CurDrv)
 			i4RetValue = g_pstAF_CurDrv->pAF_Ioctl(a_pstFile, a_u4Command, a_u4Param);
 		break;
