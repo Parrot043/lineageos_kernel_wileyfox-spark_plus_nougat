@@ -356,6 +356,19 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 			clock-frequency = <13000000>;
 		};
 
+		pmu {
+			compatible = "arm,armv8-pmuv3";
+			interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_LOW>,
+				<GIC_SPI 9 IRQ_TYPE_LEVEL_LOW>,
+				<GIC_SPI 10 IRQ_TYPE_LEVEL_LOW>,
+				<GIC_SPI 11 IRQ_TYPE_LEVEL_LOW>;
+			interrupt-affinity = <&cpu0>,
+					     <&cpu1>,
+					     <&cpu2>,
+					     <&cpu3>;
+		};
+
+
 		eintc: eintc@10005000 {
 			compatible = "mediatek,mt-eic";
 			reg = <0x10005000 0x1000>;
@@ -659,8 +672,8 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 			reg = <0x10300000 0x8000>;
 		};
 
-		cpu_dbgapb: cpu_dbgapb@0x10810000 {
-			compatible = "mediatek,mt6735-dbg_debug";
+		cpu_dbgapb: cpu_dbgapb@10810000 {
+			compatible = "mediatek,hw_dbg";
 			num = <4>;
 			reg =  <0x10810000 0x1000
 				0x10910000 0x1000
@@ -724,7 +737,7 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 			pwm_data_invert = <0>;
 		};
 
-		irlearning-spi {
+		irlearning:irlearning-spi {
 			compatible = "mediatek,irlearning-spi";
 			spi_clock = <109000000>;
 			spi_data_invert = <0>;
@@ -1031,6 +1044,7 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 				<&topckgen TOP_MUX_AUD2>,
 				<&topckgen TOP_AD_APLL1_CK>,
 				<&topckgen TOP_WHPLL_AUDIO_CK>,
+				<&topckgen TOP_MUX_AUDIO>,
 				<&topckgen TOP_MUX_AUDINTBUS>,
 				<&topckgen TOP_SYSPLL1_D4>,
 				<&apmixedsys APMIXED_APLL1>,
@@ -1051,6 +1065,7 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 				"aud_mux2_clk",
 				"top_ad_apll1_clk",
 				"top_whpll_audio_clk",
+				"top_mux_audio",
 				"top_mux_audio_int",
 				"top_sys_pll1_d4",
 				"apmixed_apll1_clk",
@@ -1286,7 +1301,7 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 		};
 
 		mhl:mhl@0 {
-			compatible = "mediatek,sii8348-hdmi";
+			compatible = "mediatek,extd_dev";
 		};
 
 		lcm_mode: lcm_mode {
@@ -1720,7 +1735,7 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 		};
 
 		gps {
-			compatible = "mediatek,mt3326-gps";
+			compatible = "mediatek,gps";
 		};
 
 		ssw:simswitch{
@@ -2157,10 +2172,10 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 			    98 3575
 			    98 3537
 			    99 3502
-			    99 3400
-			    100 3390
-			    100 3385
-			    100 3380
+			    99 3472
+			    100 3443
+			    100 3419
+			    100 3395
 			    100 3373
 			    100 3357
 			    100 3341
@@ -2254,8 +2269,8 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 			    96 3662
 			    97 3601
 			    99 3533
-			    99 3395
-			    100 3390
+			    99 3475
+			    100 3418
 			    100 3363
 			    100 3315
 			    100 3270
@@ -2359,7 +2374,7 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 			    95 3684
 			    97 3651
 			    98 3587
-			    99 3390
+			    99 3498
 			    100 3347
 			    100 3207
 			    100 3164
@@ -2455,8 +2470,8 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 			    94 3676
 			    96 3664
 			    97 3619
-			    98 3395
-			    100 3390
+			    98 3553
+			    100 3454
 			    100 3279
 			    100 3141
 			    100 3081
@@ -3326,6 +3341,7 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 		};
 	};
 
+
 	/* UART3: rx set, rx clear, tx clear, tx clear*/
 	uart3_gpio_def_cfg:uart3gpiodefault {
 
@@ -3354,6 +3370,7 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 			output-high;
 		};
 	};
+
 	/* UART GPIO Settings - End */
 };
 
@@ -3402,4 +3419,3 @@ initrd=0x44000000,0x300000 loglevel=8 androidboot.hardware=mt6735";
 };
 
 #include <trusty.dtsi>
-
