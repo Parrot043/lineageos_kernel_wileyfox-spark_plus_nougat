@@ -3827,8 +3827,7 @@ static int primary_display_esd_check_worker_kthread(void *data)
 				if (ret == 0) {
 					DISPCHECK("[ESD]esd recovery success\n");
 					break;
-				} //add by caozhg
-
+				}
 				DISPCHECK("[ESD]after esd recovery, esd check still fail\n");
 				if (i == 0) {
 					DISPCHECK("[ESD]after esd recovery %d times, esd check still fail,\n",

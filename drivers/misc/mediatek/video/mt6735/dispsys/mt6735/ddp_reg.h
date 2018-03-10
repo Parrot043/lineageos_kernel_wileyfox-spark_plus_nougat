@@ -1718,16 +1718,16 @@ extern unsigned int gEnableReduceRegWrite;
 #define DISP_REG_CONFIG_MDP_DL_READY_0				(DISPSYS_CONFIG_BASE + 0x8ac)
 #define DISP_REG_CONFIG_SMI_LARB0_GREQ				(DISPSYS_CONFIG_BASE + 0x8d0)
 #define DISP_REG_CONFIG_C08                         (DISPSYS_CONFIG_BASE + 0xc08)
-#define DISP_REG_CONFIG_C09                         (DISPSYS_CONFIG2_BASE + 0x40)	/* 0x10206040 */
-#define DISP_REG_CONFIG_C10                         (DISPSYS_CONFIG2_BASE + 0x44)	/* 0x10206044 */
+#define DISP_REG_CONFIG_C09                         (DISPSYS_CONFIG2_BASE + 0x40)   /* 0x10206040 */
+#define DISP_REG_CONFIG_C10                         (DISPSYS_CONFIG2_BASE + 0x44)   /* 0x10206044 */
 #define DISP_REG_CONFIG_C11                         (DISPSYS_CONFIG3_BASE + 0x40)	/* 0x10210040 */
 #define DISP_REG_CONFIG_C12                         (DISPSYS_CONFIG3_BASE + 0x44)	/* 0x10210044 */
 #define DISP_REG_CONFIG_C13                         (DISPSYS_CONFIG3_BASE + 0x48)	/* 0x10210048 */
-#define DISP_REG_CLK_CFG_0_MM_CLK                   (DISPSYS_CONFIG_BASE+0x40)	/* BIT31 0 */
-#define DISP_REG_CLK_CFG_0_CLR                      (DISPSYS_CONFIG_BASE+0x48)	/* BIT31  1 clear for mms */
-#define DISP_REG_CLK_CFG_1_CLR                      (DISPSYS_CONFIG_BASE+0x58)	/* bit7 1 clear for pwm */
-#define DISP_REG_CLK_CFG_6_DPI                      (DISPSYS_CONFIG_BASE+0xA0)	/* bit7 0 */
-#define DISP_REG_CLK_CFG_6_CLR                      (DISPSYS_CONFIG_BASE+0xA8)	/* bit7 1 clear for dpi */
+#define DISP_REG_CLK_CFG_0_MM_CLK                   (DISPSYS_CONFIG_BASE+0x40)  /* BIT31 0 */
+#define DISP_REG_CLK_CFG_0_CLR                      (DISPSYS_CONFIG_BASE+0x48)  /* BIT31  1 clear for mms */
+#define DISP_REG_CLK_CFG_1_CLR                      (DISPSYS_CONFIG_BASE+0x58)  /* bit7 1 clear for pwm */
+#define DISP_REG_CLK_CFG_6_DPI                      (DISPSYS_CONFIG_BASE+0xA0)  /* bit7 0 */
+#define DISP_REG_CLK_CFG_6_CLR                      (DISPSYS_CONFIG_BASE+0xA8)  /* bit7 1 clear for dpi */
 /* #define DISP_REG_VENCPLL_CON0                                        0xf0209260  // bit0 1 */
 #define DISP_REG_VENCPLL_CON1                       (DISPSYS_VENCPLL_BASE + 0x254)	/* 0x10209254 */
 

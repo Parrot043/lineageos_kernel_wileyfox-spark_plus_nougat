@@ -34,7 +34,7 @@
 /**
  * ESD recovery support.
  */
- #define MTK_FB_ESD_ENABLE //add by caozhg
+#define MTK_FB_ESD_ENABLE
 
 /**
  * FB Ion support.

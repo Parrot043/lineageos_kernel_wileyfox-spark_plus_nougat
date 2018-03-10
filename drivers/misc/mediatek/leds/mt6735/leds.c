@@ -1,11 +1,19 @@
 /*
+ * Copyright (C) 2015 MediaTek Inc.
  *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
  *
- * This file is subject to the terms and conditions of the GNU General Public
- * License.  See the file COPYING in the main directory of this archive for
- * more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+ */
+
+/*
  *
- * mt65xx leds driver
+ * mt6735 leds driver
  *
  */
 
@@ -165,7 +173,7 @@ struct cust_mt65xx_led *get_cust_led_dtsi(void)
 	int mode, data;
 	int pwm_config[5] = { 0 };
 
-	LEDS_DEBUG("get_cust_led_dtsi: get the leds info from device tree\n");
+	/* LEDS_DEBUG("get_cust_led_dtsi: get the leds info from device tree\n"); */
 	if (pled_dtsi == NULL) {
 		/* this can allocat an new struct array */
 		pled_dtsi = kmalloc(MT65XX_LED_TYPE_TOTAL *
@@ -185,10 +193,10 @@ struct cust_mt65xx_led *get_cust_led_dtsi(void)
 
 			led_node =
 			    of_find_compatible_node(NULL, NULL,
-						    strcat(node_name,
-							   leds_name[i]));
+				strncat(node_name, leds_name[i],
+					(sizeof(node_name)-strlen(node_name)-1)));
 			if (!led_node) {
-				LEDS_DEBUG("Cannot find LED node from dts\n");
+				LEDS_DEBUG("Cannot find LED node:%s from dts\n", node_name);
 				pled_dtsi[i].mode = 0;
 				pled_dtsi[i].data = -1;
 			} else {
@@ -316,6 +324,7 @@ int mt_led_set_pwm(int pwm_num, struct nled_setting *led)
 	struct pwm_spec_config pwm_setting;
 	int time_index = 0;
 
+	memset(&pwm_setting, 0, sizeof(struct pwm_spec_config));
 	pwm_setting.pwm_no = pwm_num;
 	pwm_setting.mode = PWM_MODE_OLD;
 
@@ -324,6 +333,7 @@ int mt_led_set_pwm(int pwm_num, struct nled_setting *led)
 	/* We won't choose 32K to be the clock src of old mode because of system performance. */
 	/* The setting here will be clock src = 26MHz, CLKSEL = 26M/1625 (i.e. 16K) */
 	pwm_setting.clk_src = PWM_CLK_OLD_MODE_32K;
+	pwm_setting.pmic_pad = 0;
 
 	switch (led->nled_mode) {
 	/* Actually, the setting still can not to turn off NLED. We should disable PWM to turn off NLED. */
@@ -353,6 +363,10 @@ int mt_led_set_pwm(int pwm_num, struct nled_setting *led)
 		pwm_setting.PWM_MODE_OLD_REGS.THRESH =
 		    (led->blink_on_time * 100) / (led->blink_on_time +
 						  led->blink_off_time);
+		break;
+	default:
+		LEDS_DEBUG("Invalid nled mode\n");
+		return -1;
 	}
 
 	pwm_setting.PWM_MODE_FIFO_REGS.IDLE_VALUE = 0;
@@ -521,11 +535,8 @@ int mt_led_blink_pmic(enum mt65xx_led_pmic pmic_type, struct nled_setting *led)
 
 	LEDS_DEBUG("led_blink_pmic: pmic_type=%d\n", pmic_type);
 
-	if ((pmic_type != MT65XX_LED_PMIC_NLED_ISINK0
-	     && pmic_type != MT65XX_LED_PMIC_NLED_ISINK1)
-	    || led->nled_mode != NLED_BLINK) {
+	if (led->nled_mode != NLED_BLINK)
 		return -1;
-	}
 
 	LEDS_DEBUG("LED blink on time = %d offtime = %d\n",
 		   led->blink_on_time, led->blink_off_time);
@@ -543,7 +554,7 @@ int mt_led_blink_pmic(enum mt65xx_led_pmic pmic_type, struct nled_setting *led)
 		pmic_set_register_value(PMIC_RG_DRV_ISINK0_CK_PDN, 0);
 		pmic_set_register_value(PMIC_RG_DRV_ISINK0_CK_CKSEL, 0);
 		pmic_set_register_value(PMIC_ISINK_CH0_MODE, ISINK_PWM_MODE);
-		pmic_set_register_value(PMIC_ISINK_CH0_STEP, ISINK_0);	/* 16mA */
+		pmic_set_register_value(PMIC_ISINK_CH0_STEP, ISINK_3);	/* 16mA */
 		pmic_set_register_value(PMIC_ISINK_DIM0_DUTY, duty);
 		pmic_set_register_value(PMIC_ISINK_DIM0_FSEL,
 					pmic_freqsel_array[time_index]);
@@ -553,13 +564,14 @@ int mt_led_blink_pmic(enum mt65xx_led_pmic pmic_type, struct nled_setting *led)
 		pmic_set_register_value(PMIC_RG_DRV_ISINK1_CK_PDN, 0);
 		pmic_set_register_value(PMIC_RG_DRV_ISINK1_CK_CKSEL, 0);
 		pmic_set_register_value(PMIC_ISINK_CH1_MODE, ISINK_PWM_MODE);
-		pmic_set_register_value(PMIC_ISINK_CH1_STEP, ISINK_0);	/* 16mA */
+		pmic_set_register_value(PMIC_ISINK_CH1_STEP, ISINK_3);	/* 16mA */
 		pmic_set_register_value(PMIC_ISINK_DIM1_DUTY, duty);
 		pmic_set_register_value(PMIC_ISINK_DIM1_FSEL,
 					pmic_freqsel_array[time_index]);
 		pmic_set_register_value(PMIC_ISINK_CH1_EN, NLED_ON);
 		break;
-	default:
+	default:/* Just support isink0&1 on mt6328 */
+		LEDS_DEBUG("LED type=0x%dx do not support!\n", pmic_type);
 		break;
 	}
 	return 0;
@@ -733,7 +745,7 @@ int mt_brightness_set_pmic(enum mt65xx_led_pmic pmic_type, u32 level, u32 div)
 		pmic_set_register_value(PMIC_RG_DRV_ISINK0_CK_PDN, 0);
 		pmic_set_register_value(PMIC_RG_DRV_ISINK0_CK_CKSEL, 0);
 		pmic_set_register_value(PMIC_ISINK_CH0_MODE, ISINK_PWM_MODE);
-		pmic_set_register_value(PMIC_ISINK_CH0_STEP, ISINK_0);	/* 16mA */
+		pmic_set_register_value(PMIC_ISINK_CH0_STEP, ISINK_3);	/* 16mA */
 		pmic_set_register_value(PMIC_ISINK_DIM0_DUTY, 15);
 		pmic_set_register_value(PMIC_ISINK_DIM0_FSEL, ISINK_1KHZ);	/* 1KHz */
 		if (level)
@@ -760,7 +772,7 @@ int mt_brightness_set_pmic(enum mt65xx_led_pmic pmic_type, u32 level, u32 div)
 		pmic_set_register_value(PMIC_RG_DRV_ISINK1_CK_PDN, 0);
 		pmic_set_register_value(PMIC_RG_DRV_ISINK1_CK_CKSEL, 0);
 		pmic_set_register_value(PMIC_ISINK_CH1_MODE, ISINK_PWM_MODE);
-		pmic_set_register_value(PMIC_ISINK_CH1_STEP, ISINK_0);	/* 16mA */
+		pmic_set_register_value(PMIC_ISINK_CH1_STEP, ISINK_3);	/* 16mA */
 		pmic_set_register_value(PMIC_ISINK_DIM1_DUTY, 15);
 		pmic_set_register_value(PMIC_ISINK_DIM1_FSEL, ISINK_1KHZ);	/* 1KHz */
 		if (level)

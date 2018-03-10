@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2015 MediaTek Inc.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
 #ifndef BATTERY_COMMON_H
 #define BATTERY_COMMON_H
 
@@ -311,12 +324,13 @@ extern kal_bool g_ftm_battery_flag;
 extern int charging_level_data[1];
 extern kal_bool g_call_state;
 extern kal_bool g_charging_full_reset_bat_meter;
-#if defined(CONFIG_MTK_PUMP_EXPRESS_SUPPORT) || defined(CONFIG_MTK_PUMP_EXPRESS_PLUS_SUPPORT)
+#if defined(CONFIG_MTK_PUMP_EXPRESS_SUPPORT)
 extern kal_bool ta_check_chr_type;
 extern kal_bool ta_cable_out_occur;
 extern kal_bool is_ta_connect;
 extern struct wake_lock TA_charger_suspend_lock;
 #endif
+
 
 /*****************************************************************************
  *  Extern Function
@@ -332,6 +346,10 @@ extern void do_chrdet_int_task(void);
 extern void set_usb_current_unlimited(bool enable);
 extern bool get_usb_current_unlimited(void);
 extern CHARGER_TYPE mt_get_charger_type(void);
+#if defined(CONFIG_USB_MTK_CHARGER_DETECT)
+extern CHARGER_TYPE usb_charger_type_detect(void);
+extern bool mt_get_usb11_port_status(void);
+#endif
 
 #if defined(CONFIG_MTK_HAFG_20)
 extern struct timespec mt_battery_get_duration_time_act(BATTERY_TIME_ENUM duration_type);
@@ -383,8 +401,10 @@ void check_battery_exist(void);
 #endif
 
 extern kal_bool is_usb_rdy(void);
+
 extern unsigned int upmu_get_reg_value(unsigned int reg);
 
+extern void mt_charger_enable_DP_voltage(int ison);
 
 /* usb header */
 extern bool mt_usb_is_device(void);

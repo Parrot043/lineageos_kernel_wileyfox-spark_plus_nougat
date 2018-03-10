@@ -1,3 +1,4 @@
+
 #ifndef _CUST_BATTERY_METER_H
 #define _CUST_BATTERY_METER_H
 
