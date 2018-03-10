@@ -197,8 +197,6 @@ comment "Input Device Drivers"
 
 source "drivers/input/keyboard/Kconfig"
 
-source "drivers/input/hall/Kconfig"
-
 source "drivers/input/mouse/Kconfig"
 
 source "drivers/input/joystick/Kconfig"
@@ -213,8 +211,6 @@ source "drivers/input/keyboard/mediatek/Kconfig"
 
 source "drivers/input/misc/Kconfig"
 source "drivers/input/fingerprint/Kconfig"
-
-source "drivers/input/hall/Kconfig"
 
 endif
 

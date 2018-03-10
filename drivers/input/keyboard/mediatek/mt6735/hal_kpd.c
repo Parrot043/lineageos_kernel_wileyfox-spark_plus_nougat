@@ -1,8 +1,22 @@
+/*
+ * Copyright (C) 2015 MediaTek Inc.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
 #include <kpd.h>
 #include <mt-plat/aee.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
+#include <mt-plat/upmu_common.h>
 #ifdef CONFIG_MTK_TC1_FM_AT_SUSPEND
 #include <mt_soc_afe_control.h>
 #endif
@@ -248,14 +262,7 @@ void long_press_reboot_function_setting(void)
 		pmic_set_register_value(PMIC_RG_HOMEKEY_RST_EN, 0x00);
 
 #endif
-	}
-	else if((kpd_enable_lprst&& get_boot_mode() == FACTORY_BOOT)
-		||(kpd_enable_lprst&& get_boot_mode() == ATE_FACTORY_BOOT)) {
-		kpd_info("disable factory mode LPRST\n");
-		pmic_set_register_value(PMIC_RG_PWRKEY_RST_EN,0x00);
-		pmic_set_register_value(PMIC_RG_HOMEKEY_RST_EN,0x00);
-	}
-	else {
+	} else {
 		kpd_info("Other Boot Mode long press reboot selection\n");
 #ifdef CONFIG_KPD_PMIC_LPRST_TD
 		kpd_info("Enable other mode LPRST\n");
