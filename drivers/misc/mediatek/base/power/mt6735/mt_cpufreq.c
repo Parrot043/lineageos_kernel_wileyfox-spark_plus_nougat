@@ -230,23 +230,29 @@
 #else
 #define CPU_DVFS_FREQ0   (1495000)	/* KHz */
 #define CPU_DVFS_FREQ0_1 (1443000)	/* KHz */
-#define CPU_DVFS_FREQ1   (1300000)	/* KHz */
+#define CPU_DVFS_FREQ1   (1380000)	/* KHz */
+#define CPU_DVFS_FREQ1_1 (1340000)	/* KHz */
+#define CPU_DVFS_FREQ1_2 (1300000)	/* KHz */
 #define CPU_DVFS_FREQ2   (1235000)	/* KHz */
 #define CPU_DVFS_FREQ3   (1170000)	/* KHz */
 #define CPU_DVFS_FREQ3_1 (1144000)	/* KHz (for 6753 FY)*/
 #define CPU_DVFS_FREQ3_2 (1092000)	/* KHz (for 37T to 35M+)*/
 #define CPU_DVFS_FREQ4   (1040000)	/* KHz */
 #define CPU_DVFS_FREQ4_1 (988000)		/* KHz (for 37T to 35M+)*/
-#define CPU_DVFS_FREQ4_2 (858000)		/* KHz (for 37T to 35M+)*/
+#define CPU_DVFS_FREQ4_2 (919000)
+#define CPU_DVFS_FREQ4_3 (858000)		/* KHz (for 37T to 35M+)*/
 #define CPU_DVFS_FREQ5   (819000)		/* KHz */
 #define CPU_DVFS_FREQ5_1 (793000)		/* KHz (for 37T to 35M+)*/
-#define CPU_DVFS_FREQ5_2 (637000)		/* KHz (for 37T to 35M+)*/
+#define CPU_DVFS_FREQ5_2 (700000)
+#define CPU_DVFS_FREQ5_3 (637000)		/* KHz (for 37T to 35M+)*/
 #define CPU_DVFS_FREQ6   (598000)		/* KHz */
 #define CPU_DVFS_FREQ6_1 (494000)		/* KHz (for 37T to 35M+)*/
 #define CPU_DVFS_FREQ7   (442000)		/* KHz */
 #define CPU_DVFS_FREQ7_1 (364000)		/* KHz (for 37T to 35M+)*/
 #define CPU_DVFS_FREQ8   (299000)		/* KHz */
 #define CPU_DVFS_FREQ8_1 (221000)		/* KHz (for 37T to 35M+)*/
+#define CPU_DVFS_FREQ8_2 (151000)		/* KHz (for 37T to 35M+)*/
+#define CPU_DVFS_FREQ8_3 (71000)		/* KHz (for 37T to 35M+)*/
 
 #define CPUFREQ_BOUNDARY_FOR_FHCTL (CPU_DVFS_FREQ4)	/* if cross 1040MHz when DFS, don't used FHCTL */
 #define CPUFREQ_FIX_FREQ_FOR_ES	(CPU_DVFS_FREQ4)
@@ -709,14 +715,25 @@ static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 
 /* CPU LEVEL 1, 1.3GHz segment */
 static struct mt_cpu_freq_info opp_tbl_e1_1[] = {
-	OP(CPU_DVFS_FREQ1, 125000),
+    OP(CPU_DVFS_FREQ1_2, 125000),
 	OP(CPU_DVFS_FREQ2, 123125),
-	OP(CPU_DVFS_FREQ3_1, 120000),
+	OP(CPU_DVFS_FREQ3, 120625),
+    OP(CPU_DVFS_FREQ3_1, 120000),
+    OP(CPU_DVFS_FREQ3_2, 117625),
 	OP(CPU_DVFS_FREQ4, 115000),
-	OP(CPU_DVFS_FREQ5, 110000),
+    OP(CPU_DVFS_FREQ4_1, 113000),
+    OP(CPU_DVFS_FREQ4_2, 111500),
+    OP(CPU_DVFS_FREQ4_3, 110500),
+    OP(CPU_DVFS_FREQ5, 110000),
+	OP(CPU_DVFS_FREQ5_1, 109000),
+    OP(CPU_DVFS_FREQ5_2, 107000),
+    OP(CPU_DVFS_FREQ5_3, 106000),
 	OP(CPU_DVFS_FREQ6, 105000),
+    OP(CPU_DVFS_FREQ6_1, 102000),
 	OP(CPU_DVFS_FREQ7, 100000),
+    OP(CPU_DVFS_FREQ7_1, 97000),
 	OP(CPU_DVFS_FREQ8, 95000),
+    OP(CPU_DVFS_FREQ8_1, 92000),
 };
 
 static struct opp_tbl_info opp_tbls[] = {
@@ -793,14 +810,24 @@ static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 
 /* CPU LEVEL 1, 1.3GHz segment */
 static struct mt_cpu_freq_info opp_tbl_e1_1[] = {
-	OP(CPU_DVFS_FREQ1, 125000),
+    
+    OP(CPU_DVFS_FREQ1_2, 125000),
 	OP(CPU_DVFS_FREQ2, 123125),
 	OP(CPU_DVFS_FREQ3, 120625),
+    OP(CPU_DVFS_FREQ3_1, 120000),
+    OP(CPU_DVFS_FREQ3_2, 117625),
 	OP(CPU_DVFS_FREQ4, 115000),
-	OP(CPU_DVFS_FREQ5, 110000),
+    OP(CPU_DVFS_FREQ4_1, 113000),
+    OP(CPU_DVFS_FREQ4_2, 111500),
+    OP(CPU_DVFS_FREQ5, 110000),
+	OP(CPU_DVFS_FREQ5_1, 109000),
+    OP(CPU_DVFS_FREQ5_2, 106000),
 	OP(CPU_DVFS_FREQ6, 105000),
+    OP(CPU_DVFS_FREQ6_1, 102000),
 	OP(CPU_DVFS_FREQ7, 100000),
+    OP(CPU_DVFS_FREQ7_1, 97000),
 	OP(CPU_DVFS_FREQ8, 95000),
+    OP(CPU_DVFS_FREQ8_1, 92000),
 };
 
 /* CPU LEVEL 2, 1.1GHz segment */
