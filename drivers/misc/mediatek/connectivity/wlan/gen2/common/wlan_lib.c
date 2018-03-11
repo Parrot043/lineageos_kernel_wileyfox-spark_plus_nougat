@@ -5255,10 +5255,12 @@ WLAN_STATUS wlanCheckSystemConfiguration(IN P_ADAPTER_T prAdapter)
 		if (prRegInfo->ucTxPwrValid == 0)
 			u4ErrCode |= NVRAM_ERROR_INVALID_TXPWR;
 
+/* remove by jianglingfeng for nvram_warnning start
 		if (prAdapter->fgIsEmbbededMacAddrValid == FALSE && (IS_BMCAST_MAC_ADDR(prRegInfo->aucMacAddr)
 								     || EQUAL_MAC_ADDR(aucZeroMacAddr,
 										       prRegInfo->aucMacAddr)))
 			u4ErrCode |= NVRAM_ERROR_INVALID_MAC_ADDR;
+remove by jianglingfeng for nvram_warnning start */
 
 #if CFG_SUPPORT_PWR_LIMIT_COUNTRY
 		if (prAdapter->fgIsPowerLimitTableValid == FALSE)
