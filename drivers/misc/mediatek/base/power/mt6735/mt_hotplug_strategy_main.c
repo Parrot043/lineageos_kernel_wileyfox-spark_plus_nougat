@@ -358,7 +358,7 @@ static int hps_resume(struct device *dev)
 	/* In order to fast screen on, power on extra little
 	   CPU to serve system resume. */
 	little_cpu_num_resume = 4;
-	for (cpu = hps_ctxt.little_cpu_id_min; cpu < little_cpu_num_resume; cpu++) {
+	for (cpu = hps_ctxt.little_cpu_id_min; cpu <= little_cpu_num_resume; cpu++) {
 		if (!cpu_online(cpu)) {
 			cpu_up(cpu);
 		}

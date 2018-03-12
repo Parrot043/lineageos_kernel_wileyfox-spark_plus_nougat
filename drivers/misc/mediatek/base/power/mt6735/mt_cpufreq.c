@@ -715,25 +715,23 @@ static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 
 /* CPU LEVEL 1, 1.3GHz segment */
 static struct mt_cpu_freq_info opp_tbl_e1_1[] = {
-    OP(CPU_DVFS_FREQ1_2, 125000),
-	OP(CPU_DVFS_FREQ2, 123125),
-	OP(CPU_DVFS_FREQ3, 120625),
-    OP(CPU_DVFS_FREQ3_1, 120000),
-    OP(CPU_DVFS_FREQ3_2, 117625),
-	OP(CPU_DVFS_FREQ4, 115000),
-    OP(CPU_DVFS_FREQ4_1, 113000),
-    OP(CPU_DVFS_FREQ4_2, 111500),
-    OP(CPU_DVFS_FREQ4_3, 110500),
-    OP(CPU_DVFS_FREQ5, 110000),
-	OP(CPU_DVFS_FREQ5_1, 109000),
-    OP(CPU_DVFS_FREQ5_2, 107000),
-    OP(CPU_DVFS_FREQ5_3, 106000),
-	OP(CPU_DVFS_FREQ6, 105000),
-    OP(CPU_DVFS_FREQ6_1, 102000),
-	OP(CPU_DVFS_FREQ7, 100000),
-    OP(CPU_DVFS_FREQ7_1, 97000),
-	OP(CPU_DVFS_FREQ8, 95000),
-    OP(CPU_DVFS_FREQ8_1, 92000),
+    OP(CPU_DVFS_FREQ1_2, 124000),
+	OP(CPU_DVFS_FREQ2, 122125),
+	OP(CPU_DVFS_FREQ3, 119625),
+    OP(CPU_DVFS_FREQ3_1, 119000),
+    OP(CPU_DVFS_FREQ3_2, 116625),
+	OP(CPU_DVFS_FREQ4, 114000),
+    OP(CPU_DVFS_FREQ4_1, 112000),
+    OP(CPU_DVFS_FREQ4_2, 110500),
+    OP(CPU_DVFS_FREQ5, 109000),
+	OP(CPU_DVFS_FREQ5_1, 108000),
+    OP(CPU_DVFS_FREQ5_2, 105000),
+	OP(CPU_DVFS_FREQ6, 104000),
+    OP(CPU_DVFS_FREQ6_1, 101000),
+	OP(CPU_DVFS_FREQ7, 99000),
+    OP(CPU_DVFS_FREQ7_1, 96000),
+	OP(CPU_DVFS_FREQ8, 94000),
+    OP(CPU_DVFS_FREQ8_1, 91000),
 };
 
 static struct opp_tbl_info opp_tbls[] = {
@@ -811,23 +809,23 @@ static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 /* CPU LEVEL 1, 1.3GHz segment */
 static struct mt_cpu_freq_info opp_tbl_e1_1[] = {
     
-    OP(CPU_DVFS_FREQ1_2, 125000),
-	OP(CPU_DVFS_FREQ2, 123125),
-	OP(CPU_DVFS_FREQ3, 120625),
-    OP(CPU_DVFS_FREQ3_1, 120000),
-    OP(CPU_DVFS_FREQ3_2, 117625),
-	OP(CPU_DVFS_FREQ4, 115000),
-    OP(CPU_DVFS_FREQ4_1, 113000),
-    OP(CPU_DVFS_FREQ4_2, 111500),
-    OP(CPU_DVFS_FREQ5, 110000),
-	OP(CPU_DVFS_FREQ5_1, 109000),
-    OP(CPU_DVFS_FREQ5_2, 106000),
-	OP(CPU_DVFS_FREQ6, 105000),
-    OP(CPU_DVFS_FREQ6_1, 102000),
-	OP(CPU_DVFS_FREQ7, 100000),
-    OP(CPU_DVFS_FREQ7_1, 97000),
-	OP(CPU_DVFS_FREQ8, 95000),
-    OP(CPU_DVFS_FREQ8_1, 92000),
+    OP(CPU_DVFS_FREQ1_2, 124000),
+	OP(CPU_DVFS_FREQ2, 122125),
+	OP(CPU_DVFS_FREQ3, 119625),
+    OP(CPU_DVFS_FREQ3_1, 119000),
+    OP(CPU_DVFS_FREQ3_2, 116625),
+	OP(CPU_DVFS_FREQ4, 114000),
+    OP(CPU_DVFS_FREQ4_1, 112000),
+    OP(CPU_DVFS_FREQ4_2, 110500),
+    OP(CPU_DVFS_FREQ5, 109000),
+	OP(CPU_DVFS_FREQ5_1, 108000),
+    OP(CPU_DVFS_FREQ5_2, 105000),
+	OP(CPU_DVFS_FREQ6, 104000),
+    OP(CPU_DVFS_FREQ6_1, 101000),
+	OP(CPU_DVFS_FREQ7, 99000),
+    OP(CPU_DVFS_FREQ7_1, 96000),
+	OP(CPU_DVFS_FREQ8, 94000),
+    OP(CPU_DVFS_FREQ8_1, 91000),
 };
 
 /* CPU LEVEL 2, 1.1GHz segment */
@@ -1062,7 +1060,7 @@ static unsigned int _mt_cpufreq_get_cpu_level(void)
 		cpufreq_info("@%s: segment_code = 0x%x\n", __func__, segment_code);
 
 #if defined(CONFIG_ARCH_MT6735) && defined(CONFIG_MTK_EFUSE_DOWNGRADE)
-		return CPU_LEVEL_4;	/* SW config 37T to 35M+ */
+			return CPU_LEVEL_4;	/* SW config 37T to 35M+ */
 #endif
 
 		switch (segment_code) {
@@ -1080,9 +1078,9 @@ static unsigned int _mt_cpufreq_get_cpu_level(void)
 		case 0x52:
 		case 0x53:
 #ifdef CONFIG_MTK_EFUSE_DOWNGRADE
-			return CPU_LEVEL_3;	/* SW config to 35M+ */
+				return CPU_LEVEL_3;	/* SW config to 35M+ */
 #else
-			return CPU_LEVEL_2;	/* 35P+ 1.25G */
+				return CPU_LEVEL_2;	/* 35P+ 1.25G */
 #endif
 		default:
 			break;
@@ -3274,7 +3272,7 @@ static void _mt_cpufreq_power_calculation(struct mt_cpu_dvfs *p, int oppidx, int
 	if (p->cpu_level == CPU_LEVEL_3)
 		p_leakage = leakage_data[oppidx];
 	else
-		p_leakage = mt_spower_get_leakage(MT_SPOWER_CPU, p->opp_tbl[oppidx].cpufreq_volt / 100, 65);
+	p_leakage = mt_spower_get_leakage(MT_SPOWER_CPU, p->opp_tbl[oppidx].cpufreq_volt / 100, 65);
 #else
 	p_leakage = mt_spower_get_leakage(MT_SPOWER_CPU, p->opp_tbl[oppidx].cpufreq_volt / 100, 65);
 #endif
