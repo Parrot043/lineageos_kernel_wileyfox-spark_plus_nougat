@@ -88,12 +88,17 @@
 #define GPU_DVFS_VOLT2	 (105000)	/* mV x 100 */
 #else
 #define GPU_DVFS_FREQ0	 (598000)	/* KHz */
-#define GPU_DVFS_FREQ0_1   (549250)	/* KHz */
+#define GPU_DVFS_FREQ0_1 (549250)	/* KHz */
+#define GPU_DVFS_FREQ0_2 (500000)
 #define GPU_DVFS_FREQ1	 (448500)	/* KHz */
+#define GPU_DVFS_FREQ1_1 (388500)	/* KHz */
+#define GPU_DVFS_FREQ1_2 (338500)	/* KHz */
 #define GPU_DVFS_FREQ2	 (279500)	/* KHz */
 #define GPUFREQ_LAST_FREQ_LEVEL	(GPU_DVFS_FREQ2)
 
 #define GPU_DVFS_VOLT0	 (115000)	/* mV x 100 */
+#define GPU_DVFS_VOLT0_1 (113000)	/* mV x 100 */
+#define GPU_DVFS_VOLT0_2 (107000)	/* mV x 100 */
 #define GPU_DVFS_VOLT1	 (105000)	/* mV x 100 */
 #endif
 
@@ -201,13 +206,16 @@ static struct mt_gpufreq_table_info mt_gpufreq_opp_tbl_e1_1[] = {
 /* LV2: 600MHz with 3 OPP lv */
 static struct mt_gpufreq_table_info mt_gpufreq_opp_tbl_e1_2[] = {
 	GPUOP(GPU_DVFS_FREQ0, GPU_DVFS_VOLT0),
+    GPUOP(GPU_DVFS_FREQ0_1, GPU_DVFS_VOLT0_1),
+    GPUOP(GPU_DVFS_FREQ0_2, GPU_DVFS_VOLT0_2),
 	GPUOP(GPU_DVFS_FREQ1, GPU_DVFS_VOLT0),
 	GPUOP(GPU_DVFS_FREQ2, GPU_DVFS_VOLT1),
 };
 
 /* LV3: 600MHz with 3 OPP lv */
 static struct mt_gpufreq_table_info mt_gpufreq_opp_tbl_e1_3[] = {
-	GPUOP(GPU_DVFS_FREQ0_1, GPU_DVFS_VOLT0),
+    GPUOP(GPU_DVFS_FREQ0_1, GPU_DVFS_VOLT0_1),
+    GPUOP(GPU_DVFS_FREQ0_2, GPU_DVFS_VOLT0_2),
 	GPUOP(GPU_DVFS_FREQ1, GPU_DVFS_VOLT0),
 	GPUOP(GPU_DVFS_FREQ2, GPU_DVFS_VOLT1),
 };
