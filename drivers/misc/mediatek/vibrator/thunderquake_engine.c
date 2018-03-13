@@ -22,7 +22,11 @@
 #include <linux/sysfs.h>
 #include <linux/kernel.h>
 #include <linux/kallsyms.h>
-#include <vibrator_hal.h>
+
+#include "mt6735/vibrator.h"
+#include "mt6735/vibrator_hal.h"
+#include <mach/upmu_hw.h>
+#include <mt-plat/upmu_common.h>
 
 #define MAX_VIBR 7
 #define MIN_VIBR 0
@@ -30,7 +34,7 @@
 #define ENGINE_VERSION  1
 #define ENGINE_VERSION_SUB 0
 
-extern void upmu_set_rg_vibr_vosel(kal_uint32 val);
+extern unsigned short pmic_set_register_value(PMU_FLAGS_LIST_ENUM flagname, uint32_t val);
 
 static ssize_t vibr_vtg_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
@@ -45,7 +49,7 @@ static ssize_t vibr_vtg_store(struct kobject *kobj, struct kobj_attribute *attr,
     struct vibrator_hw* hw = mt_get_cust_vibrator_hw();
 	sscanf(buf, "%u", &val);
 	if(val>=MIN_VIBR && val <=MAX_VIBR) {
-       upmu_set_rg_vibr_vosel(val);
+       pmic_set_register_value(PMIC_RG_VIBR_VOSEL, val);
        hw->vib_vol=val;
     }
     
@@ -57,6 +61,16 @@ static ssize_t thunderquake_version_show(struct kobject *kobj, struct kobj_attri
 	return sprintf(buf, "version: %u.%u\n", ENGINE_VERSION, ENGINE_VERSION_SUB);
 }
 
+static ssize_t min_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+{
+ 	return sprintf(buf, "%d\n", MIN_VIBR);
+}
+ 
+static ssize_t max_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+{
+ 	return sprintf(buf, "%d\n", MAX_VIBR);
+}
+ 
 static struct kobj_attribute thunderquake_version_attribute =
 	__ATTR(engine_version,
 		0444,
@@ -64,13 +78,27 @@ static struct kobj_attribute thunderquake_version_attribute =
 
 static struct kobj_attribute thunderquake_level_attribute =
 	__ATTR(level,
-		0666,
+		0664,
 		vibr_vtg_show, vibr_vtg_store);
+
+static struct kobj_attribute thunderquake_min_attribute =
+ 	__ATTR(min,
+ 		0444,
+ 		min_show, NULL);
+ 
+ 
+ static struct kobj_attribute thunderquake_max_attribute =
+ 	__ATTR(max,
+ 		0444,
+ 		max_show, NULL);
+ 
 
 static struct attribute *thunderquake_engine_attrs[] =
 	{
 		&thunderquake_level_attribute.attr,
 		&thunderquake_version_attribute.attr,
+		&thunderquake_max_attribute.attr,
+ 		&thunderquake_min_attribute.attr,
 		NULL,
 	};
 
@@ -116,3 +144,4 @@ module_exit(vibr_level_control_exit);
 MODULE_LICENSE("GPL and additional rights");
 MODULE_AUTHOR("Varun Chitre <varun.chitre15@gmail.com>");
 MODULE_DESCRIPTION("ThundQuake Engine - Driver to control Mediatek Vibrator Intensity");
+

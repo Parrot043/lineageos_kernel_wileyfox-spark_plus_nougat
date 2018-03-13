@@ -4,7 +4,7 @@ export ARCH=arm64
 export TARGET_ARCH=arm64
 export KBUILD_BUILD_USER=PaperPlane
 export KBUILD_BUILD_HOST=fuldaros
-export CROSS_COMPILE=~/kernel/UBERTC5.3/bin/aarch64-linux-android-
+export CROSS_COMPILE=~/kernels/UBERTC5.3/bin/aarch64-linux-android-
 make O=../out Image.gz-dtb
 echo       COPY KERNEL       
 rm ../CarlivImageKitchen64/boot-alps/boot.img-kernel
