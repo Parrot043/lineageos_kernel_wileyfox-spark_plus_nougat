@@ -205,7 +205,11 @@ int ima_appraise_measurement(int func, struct integrity_iint_cache *iint,
 		status = INTEGRITY_NOLABEL;
 		if (opened & FILE_CREATED) {
 			iint->flags |= IMA_NEW_FILE;
-			status = INTEGRITY_PASS;
+			 if ((iint->flags & IMA_NEW_FILE) &&
+		    (!(iint->flags & IMA_DIGSIG_REQUIRED) ||
+		     (inode->i_size == 0)))
+ 			status = INTEGRITY_PASS;
+ 		goto out;
 		}
 		goto out;
 	}
