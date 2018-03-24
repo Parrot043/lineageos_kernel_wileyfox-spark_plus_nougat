@@ -25,6 +25,8 @@
 
 #include "security.h"
 
+#include "security.h"
+
 struct avtab_key {
 	u16 source_type;	/* source type */
 	u16 target_type;	/* target type */

@@ -1025,6 +1025,131 @@ void security_compute_operation(u32 ssid,
 		goto out;
 	}
 
+void services_compute_operation_num(struct operation_decision *od,
+					struct avtab_node *node)
+{
+	unsigned int i;
+
+	if (node->key.specified & AVTAB_OPNUM) {
+		if (od->type != node->datum.u.ops->type)
+			return;
+	} else {
+		if (!security_operation_test(node->datum.u.ops->op.perms,
+					od->type))
+			return;
+	}
+
+	if (node->key.specified == AVTAB_OPTYPE_ALLOWED) {
+		od->specified |= OPERATION_ALLOWED;
+		memset(od->allowed->perms, 0xff,
+				sizeof(od->allowed->perms));
+	} else if (node->key.specified == AVTAB_OPTYPE_AUDITALLOW) {
+		od->specified |= OPERATION_AUDITALLOW;
+		memset(od->auditallow->perms, 0xff,
+				sizeof(od->auditallow->perms));
+	} else if (node->key.specified == AVTAB_OPTYPE_DONTAUDIT) {
+		od->specified |= OPERATION_DONTAUDIT;
+		memset(od->dontaudit->perms, 0xff,
+				sizeof(od->dontaudit->perms));
+	} else if (node->key.specified == AVTAB_OPNUM_ALLOWED) {
+		od->specified |= OPERATION_ALLOWED;
+		for (i = 0; i < ARRAY_SIZE(od->allowed->perms); i++)
+			od->allowed->perms[i] |=
+					node->datum.u.ops->op.perms[i];
+	} else if (node->key.specified == AVTAB_OPNUM_AUDITALLOW) {
+		od->specified |= OPERATION_AUDITALLOW;
+		for (i = 0; i < ARRAY_SIZE(od->auditallow->perms); i++)
+			od->auditallow->perms[i] |=
+					node->datum.u.ops->op.perms[i];
+	} else if (node->key.specified == AVTAB_OPNUM_DONTAUDIT) {
+		od->specified |= OPERATION_DONTAUDIT;
+		for (i = 0; i < ARRAY_SIZE(od->dontaudit->perms); i++)
+			od->dontaudit->perms[i] |=
+					node->datum.u.ops->op.perms[i];
+	} else {
+		BUG();
+	}
+}
+
+void security_compute_operation(u32 ssid,
+				u32 tsid,
+				u16 orig_tclass,
+				u8 type,
+				struct operation_decision *od)
+{
+	u16 tclass;
+	struct context *scontext, *tcontext;
+	struct avtab_key avkey;
+	struct avtab_node *node;
+	struct ebitmap *sattr, *tattr;
+	struct ebitmap_node *snode, *tnode;
+	unsigned int i, j;
+
+	od->type = type;
+	od->specified = 0;
+	memset(od->allowed->perms, 0, sizeof(od->allowed->perms));
+	memset(od->auditallow->perms, 0, sizeof(od->auditallow->perms));
+	memset(od->dontaudit->perms, 0, sizeof(od->dontaudit->perms));
+
+	read_lock(&policy_rwlock);
+	if (!ss_initialized)
+		goto allow;
+
+	scontext = sidtab_search(&sidtab, ssid);
+	if (!scontext) {
+		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+		       __func__, ssid);
+		goto out;
+	}
+
+	tcontext = sidtab_search(&sidtab, tsid);
+	if (!tcontext) {
+		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+		       __func__, tsid);
+		goto out;
+	}
+
+	tclass = unmap_class(orig_tclass);
+	if (unlikely(orig_tclass && !tclass)) {
+		if (policydb.allow_unknown)
+			goto allow;
+		goto out;
+	}
+
+
+	if (unlikely(!tclass || tclass > policydb.p_classes.nprim)) {
+		pr_warn_ratelimited("SELinux:  Invalid class %hu\n", tclass);
+		goto out;
+	}
+
+	avkey.target_class = tclass;
+	avkey.specified = AVTAB_OP;
+	sattr = flex_array_get(policydb.type_attr_map_array,
+				scontext->type - 1);
+	BUG_ON(!sattr);
+	tattr = flex_array_get(policydb.type_attr_map_array,
+				tcontext->type - 1);
+	BUG_ON(!tattr);
+	ebitmap_for_each_positive_bit(sattr, snode, i) {
+		ebitmap_for_each_positive_bit(tattr, tnode, j) {
+			avkey.source_type = i + 1;
+			avkey.target_type = j + 1;
+			for (node = avtab_search_node(&policydb.te_avtab, &avkey);
+			     node;
+			     node = avtab_search_node_next(node, avkey.specified))
+				services_compute_operation_num(od, node);
+
+			cond_compute_operation(&policydb.te_cond_avtab,
+						&avkey, od);
+		}
+	}
+out:
+	read_unlock(&policy_rwlock);
+	return;
+allow:
+	memset(od->allowed->perms, 0xff, sizeof(od->allowed->perms));
+	goto out;
+}
 
 	if (unlikely(!tclass || tclass > policydb.p_classes.nprim)) {
 		pr_warn_ratelimited("SELinux:  Invalid class %hu\n", tclass);
