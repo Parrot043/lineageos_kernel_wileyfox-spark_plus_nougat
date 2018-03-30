@@ -2,6 +2,7 @@
 # by fuldaros
 rm -f gen.info
 mkdir out
+mkdir outkernel
 export ARCH=arm64
 stamp=$(date +"%H:%M:%S %Y.%m.%d");
 echo "generate by fuldaros's script on "$stamp" " > gen.info
