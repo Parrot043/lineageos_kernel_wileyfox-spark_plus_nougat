@@ -1,0 +1,5 @@
+out/
+*.rej
+*.orig
+outkernel/
+gen.info
