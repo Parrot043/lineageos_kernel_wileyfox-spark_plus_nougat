@@ -24,6 +24,7 @@ cd ../
 echo "Собираю zip пакет..."
 rm -f anykernel2/zImage
 cat outkernel/"$kernel" > anykernel2/zImage
-zip -r outzip/"$otazip".zip anykernel2/*
+cd anykernel2
+zip -r ../outzip/"$otazip".zip *
 echo "OTA Pack created! Name: "$otazip""
 echo Success!
