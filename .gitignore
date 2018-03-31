@@ -3,3 +3,4 @@ out/
 *.orig
 outkernel/
 gen.info
+outzip/
