@@ -27,4 +27,5 @@ cat outkernel/"$kernel" > anykernel2/zImage
 cd anykernel2
 zip -r ../outzip/"$otazip".zip *
 echo "OTA Pack created! Name: "$otazip""
+rm -f zImage
 echo Success!
