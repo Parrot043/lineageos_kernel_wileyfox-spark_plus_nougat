@@ -1,5 +1,6 @@
 #!/bin/bash
 # by fuldaros
+set -e
 stamp=$(date +"%Y%m%d-%H%M");
 kernel=paperplane_"$stamp";
 logb=logb_"$stamp";
@@ -12,7 +13,7 @@ read pwd < pwd.dat
 rm -f pwd.dat
 export CROSS_COMPILE="$pwd"/tools/bin/aarch64-linux-gnu-
 cd sources/
-echo made by fuldaros
+echo "#### made by fuldaros ####"
 echo "Подождите...ядро собирается :3"
 make -j3 O=../out/paperplane Image.gz-dtb > ../outkernel/"$logb"
 echo "Копирую ядро..."
