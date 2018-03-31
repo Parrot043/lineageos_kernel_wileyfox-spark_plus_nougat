@@ -1,4 +1,4 @@
-## Wileyfox Spark Kernel 3.18.98         
+## Wileyfox Spark Kernel 3.18.102        
 ![Wileyfox Spark+](https://www.kickmobiles.com/content/images/thumbs/0007769_wileyfox-spark-plus-dual-sim-16gb-black_420.jpeg)
 
 Codename - porridge
